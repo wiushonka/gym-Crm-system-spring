@@ -1,0 +1,5 @@
+Adam,Smith,pass101,adamsmith,Fitness
+Eva,Johnson,pass102,evajohnson,Strength
+Leo,Brown,pass103,leobrown,Yoga
+Lily,Davis,pass104,lilydavis,Cardio
+Max,Williams,pass105,maxwilliams,Pilates

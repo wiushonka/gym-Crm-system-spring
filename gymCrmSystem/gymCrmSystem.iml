@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module version="4">
+  <component name="FacetManager">
+    <facet type="jpa" name="JPA">
+      <configuration>
+        <setting name="validation-enabled" value="true" />
+        <datasource-mapping>
+          <factory-entry name="entityManagerFactory" value="4427b66a-85c6-4a75-8013-3683aff04469" />
+          <factory-entry name="mainAppDb" value="97f07eb2-e592-41af-b107-011881ed4d79" />
+          <factory-entry name="testDb" />
+        </datasource-mapping>
+        <naming-strategy-map />
+        <deploymentDescriptor name="persistence.xml" url="file://$MODULE_DIR$/src/test/resources/META-INF/persistence.xml" />
+      </configuration>
+    </facet>
+  </component>
+</module>
