@@ -19,6 +19,5 @@ currently path is set correctly for my computer, so in order for it to work:
 For testing h2 scheme is used, and test profile properties are set in test\resources
 
 Make sure to choose suitable active profile in application.properties and set up db and file paths in 
-that profile. For MongoDb drops old summarys, because now it is scheduled to aggregate data in every
-10 seconds instead of 4 weeks, in comment or delete mongo configuration and uncomment part in MongoSummaryService
-which makes it trigger in every 4 weeks.
+that profile. Separate Microservice (Trainer Workload) is used to aggregate some data whenever training is 
+added or deleted via open Feign.
