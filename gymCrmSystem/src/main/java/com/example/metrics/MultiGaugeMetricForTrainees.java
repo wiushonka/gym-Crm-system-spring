@@ -27,7 +27,7 @@ public class MultiGaugeMetricForTrainees {
     @Autowired
     protected TraineeService service;
 
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = 1000000)
     public void updateTraineesActivityGauges() {
 
         logger.info("10 second gone UPDATING TRAINEE ACTIVITY GAUGES :3");

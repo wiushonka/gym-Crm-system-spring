@@ -1,0 +1,16 @@
+org\example\trainerworkloadservice\service\TrainerSummaryService.class
+org\example\trainerworkloadservice\config\WebConfig.class
+org\example\trainerworkloadservice\TrainerWorkloadServiceApplication.class
+org\example\trainerworkloadservice\repository\SummaryRepo.class
+org\example\trainerworkloadservice\config\MongoDbConfiguration.class
+org\example\trainerworkloadservice\logging\LoggingInterceptor.class
+org\example\trainerworkloadservice\service\JwtService.class
+org\example\trainerworkloadservice\model\TrainerSummaryMongo.class
+org\example\trainerworkloadservice\logging\TransactionIdFilter.class
+org\example\trainerworkloadservice\dto\ActionType.class
+org\example\trainerworkloadservice\dto\InputDto$InputDtoBuilder.class
+org\example\trainerworkloadservice\config\ArtemisConfig.class
+org\example\trainerworkloadservice\dto\InputDto.class
+org\example\trainerworkloadservice\dto\ResponseDto.class
+org\example\trainerworkloadservice\message\WorkloadConsumer.class
+org\example\trainerworkloadservice\service\TrainerSummaryService$TrainerNotFoundException.class

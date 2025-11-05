@@ -20,4 +20,4 @@ For testing h2 scheme is used, and test profile properties are set in test\resou
 
 Make sure to choose suitable active profile in application.properties and set up db and file paths in 
 that profile. Separate Microservice (Trainer Workload) is used to aggregate some data whenever training is 
-added or deleted via open Feign.
+added or deleted. Asynchronous messaging is managed by ActiveMQ artemis.

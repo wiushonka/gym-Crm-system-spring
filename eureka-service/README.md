@@ -1,1 +1,0 @@
-This is microservice , which is helping main monolithic app to gather information about workload of trainers. I moved workload calculator from main monolith to this microservice added security and rest layers which are used from main system via open feign. Logging and Jwt tokens are passed also with openFeign interceptors.

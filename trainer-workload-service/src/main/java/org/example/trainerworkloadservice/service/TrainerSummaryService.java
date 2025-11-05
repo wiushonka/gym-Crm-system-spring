@@ -4,6 +4,7 @@ import org.example.trainerworkloadservice.dto.InputDto;
 import org.example.trainerworkloadservice.dto.ActionType;
 import org.example.trainerworkloadservice.model.TrainerSummaryMongo;
 import org.example.trainerworkloadservice.repository.SummaryRepo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -16,14 +17,20 @@ public class TrainerSummaryService {
 
     private final SummaryRepo repository;
 
+    @Autowired
     public TrainerSummaryService(SummaryRepo repository) {
         this.repository = repository;
     }
 
-    public TrainerSummaryMongo processTraining(InputDto input) {
+    public void processTraining(InputDto input) {
         if (input == null) {
             throw new IllegalArgumentException("InputDto is null");
         }
+
+        if (input.getUsername() == null || input.getUsername().isBlank()) {
+            throw new IllegalArgumentException("username is required");
+        }
+
         if (input.getTrainingDate() == null) {
             throw new IllegalArgumentException("trainingDate is required");
         }
@@ -32,9 +39,6 @@ public class TrainerSummaryService {
         }
         if (input.getActionType() == null) {
             throw new IllegalArgumentException("actionType is required");
-        }
-        if (input.getUsername() == null || input.getUsername().isBlank()) {
-            throw new IllegalArgumentException("username is required");
         }
 
         LocalDate date = input.getTrainingDate().toInstant()
@@ -75,12 +79,11 @@ public class TrainerSummaryService {
             yearly.remove(year);
         }
 
-        return repository.save(trainer);
+        repository.save(trainer);
     }
 
-    public TrainerSummaryMongo getTrainerSummary(String username) {
-        return repository.findByTrainerUsername(username)
-                .orElseThrow(() -> new TrainerNotFoundException(username));
+    public TrainerSummaryMongo  getTrainerSummary(String username) {
+         return repository.findByTrainerUsername(username).orElseThrow(() -> new TrainerNotFoundException(username));
     }
 
     public static class TrainerNotFoundException extends RuntimeException {

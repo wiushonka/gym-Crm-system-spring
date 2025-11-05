@@ -27,7 +27,7 @@ public class MutliGaugeMetricForTrainers {
     @Autowired
     protected TrainerService service;
 
-    @Scheduled(fixedDelay = 10000)
+    @Scheduled(fixedDelay = 1000000)
     public void updateTraineeTrainingTimeGauges() {
 
         logger.info("10 second gone UPDATING TRAINER TRAININGS GAUGES :3");

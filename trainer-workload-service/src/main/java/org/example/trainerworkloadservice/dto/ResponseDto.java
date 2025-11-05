@@ -1,13 +1,16 @@
 package org.example.trainerworkloadservice.dto;
 
+import java.io.Serializable;
 import java.util.Map;
 
-public class ResponseDto {
+public class ResponseDto implements Serializable {
     private String username;
     private String firstName;
     private String lastName;
     private boolean isActive;
     private Map<String, Map<String, Integer>> yearlyMonthlyDuration;
+
+    public ResponseDto() {}
 
     public ResponseDto(String username, String firstName, String lastName, boolean isActive, Map<String, Map<String, Integer>> yearlyMonthlyDuration) {
         this.username = username;
@@ -55,5 +58,44 @@ public class ResponseDto {
 
     public void setYearlyMonthlyDuration(Map<String, Map<String, Integer>> yearlyMonthlyDuration) {
         this.yearlyMonthlyDuration = yearlyMonthlyDuration;
+    }
+
+    public static class ResponseDtoBuilder {
+        private String username;
+        private String firstName;
+        private String lastName;
+        private boolean isActive;
+        private Map<String, Map<String, Integer>> yearlyMonthlyDuration;
+
+        public ResponseDtoBuilder() {}
+
+        public ResponseDtoBuilder username(String username) {
+            this.username = username;
+            return this;
+        }
+
+        public ResponseDtoBuilder firstName(String firstName) {
+            this.firstName = firstName;
+            return this;
+        }
+
+        public ResponseDtoBuilder lastName(String lastName) {
+            this.lastName = lastName;
+            return this;
+        }
+
+        public ResponseDtoBuilder active(boolean isActive) {
+            this.isActive = isActive;
+            return this;
+        }
+
+        public ResponseDtoBuilder yearlyMonthlyDuration(Map<String, Map<String, Integer>> yearlyMonthlyDuration) {
+            this.yearlyMonthlyDuration = yearlyMonthlyDuration;
+            return this;
+        }
+
+        public ResponseDto build() {
+            return new ResponseDto(username, firstName, lastName, isActive, yearlyMonthlyDuration);
+        }
     }
 }

@@ -2,11 +2,8 @@ package com.example.controllers.rest;
 
 import com.example.dto.trainings.TrainingTypeDTO;
 import com.example.dto.trainings.newTrainingDTO;
-import com.example.openfeign.SummaryControllerOpenFeignClient;
-import com.example.service.TraineeService;
-import com.example.service.TrainerService;
-import com.example.service.TrainingService;
-import com.example.service.TrainingTypeService;
+import com.example.message.Producer;
+import com.example.service.*;
 import com.example.storage.entitys.training.Training;
 import com.example.storage.entitys.training.TrainingType;
 import com.example.storage.entitys.users.Trainee;
@@ -38,20 +35,19 @@ public class TrainingRestController {
     private final TraineeService traineeService;
     private final TrainerService trainerService;
     private final TrainingTypeService trainingTypeService;
-
-    private final SummaryControllerOpenFeignClient workloadService;
+    private final Producer producer;
 
     private final Logger logger = LoggerFactory.getLogger(TrainingRestController.class);
 
     @Autowired
     public TrainingRestController(TrainingService trainingService, TraineeService traineeService,
                                   TrainerService trainerService, TrainingTypeService trainingTypeService,
-                                  SummaryControllerOpenFeignClient workloadService) {
+                                  Producer producer) {
         this.trainingService = trainingService;
         this.traineeService = traineeService;
         this.trainerService = trainerService;
         this.trainingTypeService = trainingTypeService;
-        this.workloadService = workloadService;
+        this.producer = producer;
     }
 
     @PostMapping()
@@ -87,16 +83,17 @@ public class TrainingRestController {
         trainingService.addTraining(training);
         logger.info("New training added: {}", training.getTrainingName());
 
-        InputDto inputDto = new InputDto();
-        inputDto.setActive(trainer.isActive());
-        inputDto.setActionType(ActionType.ADD);
-        inputDto.setLastName(trainer.getLastName());
-        inputDto.setFirstName(trainer.getFirstName());
-        inputDto.setUsername(trainer.getUserName());
-        inputDto.setTrainingDuration(dto.getTrainingDuration());
-        inputDto.setTrainingDate(dto.getTrainingStartDate());
-
-        workloadService.addTraining(dto.getTrainerUsername(),inputDto);
+        InputDto inputDto = new InputDto.InputDtoBuilder()
+                .active(trainer.isActive())
+                .actionType(ActionType.ADD)
+                .lastName(trainer.getLastName())
+                .firstName(trainer.getFirstName())
+                .username(trainer.getUserName())
+                .trainingDuration(dto.getTrainingDuration())
+                .trainingDate(dto.getTrainingStartDate())
+                .build();
+        logger.info("Sent add order to producer");
+        producer.produce(inputDto);
 
         return ResponseEntity.ok().build();
     }
@@ -129,7 +126,8 @@ public class TrainingRestController {
             @ApiResponse(responseCode = "500", description = "Internal server error while fetching trainer summary")
     })
     public ResponseDto getTrainingSummary(@PathVariable String username) {
-        return workloadService.getSummary(username);
+        InputDto inputDto=new InputDto.InputDtoBuilder().username(username).actionType(ActionType.SUMMARY).build();
+        return producer.produceReadRequest(inputDto);
     }
 
     @DeleteMapping()
@@ -163,15 +161,17 @@ public class TrainingRestController {
             return ResponseEntity.noContent().build();
         }
 
-        InputDto inputDto = new InputDto();
-        inputDto.setTrainingDuration(training.getDuration());
-        inputDto.setTrainingDate(training.getTrainingDate());
-        inputDto.setActive(training.getTrainer().isActive());
-        inputDto.setUsername(training.getTrainer().getUserName());
-        inputDto.setLastName(training.getTrainer().getLastName());
-        inputDto.setFirstName(training.getTrainer().getFirstName());
-        inputDto.setActionType(ActionType.DELETE);
-        workloadService.deleteTraining(training.getTrainer().getUserName(),inputDto);
+        InputDto inputDto = new InputDto.InputDtoBuilder()
+                .trainingDuration(training.getDuration())
+                .trainingDate(training.getTrainingDate())
+                .active(training.getTrainer().isActive())
+                .username(training.getTrainer().getUserName())
+                .lastName(training.getTrainer().getLastName())
+                .firstName(training.getTrainer().getFirstName())
+                .actionType(ActionType.DELETE)
+                .build();
+        logger.info("Sent delete order to producer");
+        producer.produce(inputDto);
 
         trainingService.deleteTraining(trainingName);
         return ResponseEntity.ok().build();
