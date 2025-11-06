@@ -1,2 +1,3 @@
-This is discovery server for different microservices in this app
+This is a microservice for gathering trainer workload information. 
+Communication is based on asynchronous messaging (ActiveMQ).
 
