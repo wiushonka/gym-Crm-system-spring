@@ -83,17 +83,22 @@ public class TrainingRestController {
         trainingService.addTraining(training);
         logger.info("New training added: {}", training.getTrainingName());
 
-        InputDto inputDto = new InputDto.InputDtoBuilder()
-                .active(trainer.isActive())
-                .actionType(ActionType.ADD)
-                .lastName(trainer.getLastName())
-                .firstName(trainer.getFirstName())
-                .username(trainer.getUserName())
-                .trainingDuration(dto.getTrainingDuration())
-                .trainingDate(dto.getTrainingStartDate())
-                .build();
-        logger.info("Sent add order to producer");
-        producer.produce(inputDto);
+        try{
+            InputDto inputDto = new InputDto.InputDtoBuilder()
+                    .active(trainer.isActive())
+                    .actionType(ActionType.ADD)
+                    .lastName(trainer.getLastName())
+                    .firstName(trainer.getFirstName())
+                    .username(trainer.getUserName())
+                    .trainingDuration(dto.getTrainingDuration())
+                    .trainingDate(dto.getTrainingStartDate())
+                    .build();
+            logger.info("Sent add order to producer");
+            producer.produce(inputDto);
+        } catch (Exception e){
+            logger.error("Could not set message to trainer-workload-service", e);
+            logger.warn("WORKLOAD SERVICE IS PROBABLY DOWN , CHECK LATER");
+        }
 
         return ResponseEntity.ok().build();
     }
