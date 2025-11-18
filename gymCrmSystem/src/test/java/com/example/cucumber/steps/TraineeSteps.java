@@ -20,6 +20,10 @@ public class TraineeSteps {
     private int port;
     private Response response;
     private String tokenShmoken;
+    private String username;
+    private String password;
+    private String incorrectUsername;
+    private String updatedPassword;
 
     @Given("I have a valid trainee registration payload")
     public void i_have_a_valid_trainee_registration_payload() {
@@ -62,5 +66,68 @@ public class TraineeSteps {
     @Then("I should receive a {int} shmesponce")
     public void i_should_receive_a_shmesponce(Integer expectedStatus) {
         assertThat(response.getStatusCode(), equalTo(expectedStatus));
+    }
+
+
+    @Given("I have valid credintals for a trainee username: {string} and password {string}")
+    public void i_have_valid_credintals(String inpUsername, String inpPassword) {
+        username = inpUsername;
+        password = inpPassword;
+    }
+
+    @When("I try to login to endpoint {string} with my valid credintals")
+    public void i_try_to_login_to_endpoint_with_my_valid_credintals(String endpoint) {
+        Map<String, String> credentials = Map.of("username", username, "password", password);
+        response = RestAssured.given().contentType("application/json")
+                .body(credentials)
+                .post("http://localhost:" + port + endpoint);
+    }
+
+    @Then("I should receive response with bearer Token")
+    public void i_should_receive_response_with_bearer_Token() {
+        log.info(response.prettyPrint());
+        assertThat(response.getStatusCode(), equalTo(200));
+        tokenShmoken = response.jsonPath().getString("token");
+    }
+
+    @Given("I want to update pasword for trainee username: {string} to {string}")
+    public void i_want_to_update_password_for_trainee_username_to(String nonExistentUsername, String newPassword) {
+        incorrectUsername=nonExistentUsername;
+        updatedPassword=newPassword;
+    }
+
+    @When("I send PUT request with invalid credintals to endpoint {string}")
+    public void i_send_put_request_with_invalid_credintals(String endpoint) {
+        Map<String,String> credentials = Map.of("username", incorrectUsername, "newPassword", updatedPassword);
+        response = RestAssured.given().contentType("application/json")
+                .header("Authorization", "Bearer " + tokenShmoken)
+                .body(credentials)
+                .put("http://localhost:" + port + endpoint);
+
+        assertThat(response,notNullValue());
+    }
+
+    @Then("I shall receive error code 401, because authentication check will kick me out before invalid password check" +
+            ", which actually wont get invoked at all")
+    public void i_shall_be_kicked_out(){
+        log.info(response.prettyPrint());
+        assertThat(response.getStatusCode(),equalTo(401));
+    }
+
+    @Given("I want check profile of user: some non existent user")
+    public void i_want_check_profile_of_user_some_non_existent_user() {}
+
+    @When("I send GET request to {string} in order to get retrieve non existent user")
+    public void i_send_get_request_to(String endpoint) {
+        response = RestAssured.given().contentType("application/json")
+                .header("Authorization","Bearer " + tokenShmoken)
+                .get("http://localhost:"+ port + endpoint);
+    }
+
+    @Then("I should receive response code 404 and logical message")
+    public void i_should_receive_response_code_404_and_logical_message() {
+        assertThat(response.getStatusCode(),equalTo(404));
+        assertThat(response.getBody(),notNullValue());
+        log.info(response.prettyPrint());
     }
 }

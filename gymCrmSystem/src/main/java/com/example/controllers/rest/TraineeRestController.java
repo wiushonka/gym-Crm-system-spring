@@ -97,7 +97,7 @@ public class TraineeRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Password successfully updated"),
             @ApiResponse(responseCode = "401", description = "User is not logged in"),
-            @ApiResponse(responseCode = "403", description = "Access denied for another user's profile"),
+            @ApiResponse(responseCode = "403", description = "Access denied for another user's profile, op op op she maimuno !"),
             @ApiResponse(responseCode = "404", description = "Trainee not found or invalid"),
             @ApiResponse(responseCode = "500", description = "Internal server error while updating password")
     })
