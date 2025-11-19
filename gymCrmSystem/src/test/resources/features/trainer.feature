@@ -11,3 +11,7 @@ Feature: Trainer API
     Given Password changed
     When I want to login on "/api/v1/auth/login" with my new credintals username : "test.user1" and password : "pass123"
     Then I should be able to log in and receive bearer token
+
+    Given I want to find status of colleague but typed username incorrectly
+    When I send GET request to trainer endpoint "/api/v1/trainers/incorrect"
+    Then I should receive error response 404 and appropriate message

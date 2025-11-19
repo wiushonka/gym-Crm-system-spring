@@ -79,4 +79,30 @@ public class TrainingSteps {
         log.info(response.getBody().prettyPrint());
         assertThat(response,notNullValue());
     }
+
+    @Given("I want to add some training")
+    public void i_want_to_add_some_training() {}
+
+    @When("I send POST request to {string} with trainer username {string} and trainee " +
+            "username {string} training name {string} date {string} and duration {string}")
+    public void I_add_training(String endpoint, String trainerUsername, String traineeUsername, String trainingName, String date, String duration){
+        Map<String,String> validTrainingDto = Map.of("traineeUsername", traineeUsername,
+                "trainerUsername", trainerUsername,
+                "trainingName", trainingName,
+                "trainingStartDate", date,
+                "trainingDuration", duration);
+
+        response = RestAssured.given().contentType("application/json")
+                .header("Authorization","Bearer" + token)
+                .body(validTrainingDto)
+                .post("http://localhost:" + port + endpoint);
+
+        assertThat(response,notNullValue());
+    }
+
+    @Then("I should receive 302 code in case if training is added")
+    public void i_should_receive_200_code_in_case_if_training_is_added() {
+        log.info(response.prettyPrint());
+        assertThat(response.getStatusCode(),equalTo(302));
+    }
 }

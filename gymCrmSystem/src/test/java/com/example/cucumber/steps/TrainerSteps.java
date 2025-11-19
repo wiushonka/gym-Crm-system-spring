@@ -110,4 +110,21 @@ public class TrainerSteps {
         assertThat(response.getStatusCode(),equalTo(200));
         assertThat(response.jsonPath().getString("token").length()>15,equalTo(true));
     }
+
+    @Given("I want to find status of colleague but typed username incorrectly")
+    public void I_am_searching_incorrect_name(){}
+
+    @When("I send GET request to trainer endpoint {string}")
+    public void i_send_get_request_to_trainer_endpoint(String endpoint) {
+        response = RestAssured.given().contentType("application/json")
+                .header("Authorization","Bearer " + token)
+                .get("http://localhost:" + port + endpoint);
+        assertThat(response,notNullValue());
+    }
+
+    @Then("I should receive error response 404 and appropriate message")
+    public void i_should_receive_error_response_404_and_appropriate_message() {
+        log.info(response.prettyPrint());
+        assertEquals(404,response.getStatusCode());
+    }
 }
