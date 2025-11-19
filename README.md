@@ -22,4 +22,6 @@ Make sure to choose suitable active profile in application.properties and set up
 that profile. Separate Microservice (Trainer Workload) is used to aggregate some data whenever training is 
 added or deleted. Asynchronous messaging is managed by ActiveMQ artemis. When testing with Cucumber make sure
 that message broker is active, since cucumber integration tests of gymCrmSystem also boots up and waits for 
-workload service with test profile and when testing it is important to have active message broker.
+workload service with test profile and when testing it is important to have active message broker. 
+Also I dont know why but on github it shows 80% of code as html and there is actually only java and Gherkin 
+and only 2 small thymeleaf teamplates. 
