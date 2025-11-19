@@ -20,4 +20,6 @@ For testing h2 scheme is used, and test profile properties are set in test\resou
 
 Make sure to choose suitable active profile in application.properties and set up db and file paths in 
 that profile. Separate Microservice (Trainer Workload) is used to aggregate some data whenever training is 
-added or deleted. Asynchronous messaging is managed by ActiveMQ artemis.
+added or deleted. Asynchronous messaging is managed by ActiveMQ artemis. When testing with Cucumber make sure
+that message broker is active, since cucumber integration tests of gymCrmSystem also boots up and waits for 
+workload service with test profile and when testing it is important to have active message broker.
