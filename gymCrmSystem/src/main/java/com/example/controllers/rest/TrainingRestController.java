@@ -1,5 +1,8 @@
 package com.example.controllers.rest;
 
+import com.example.dto.message.ActionType;
+import com.example.dto.message.InputDto;
+import com.example.dto.message.ResponseDto;
 import com.example.dto.trainings.TrainingTypeDTO;
 import com.example.dto.trainings.newTrainingDTO;
 import com.example.message.Producer;
@@ -9,9 +12,6 @@ import com.example.storage.entitys.training.TrainingType;
 import com.example.storage.entitys.users.Trainee;
 import com.example.storage.entitys.users.Trainer;
 import jakarta.validation.Valid;
-import org.example.trainerworkloadservice.dto.ActionType;
-import org.example.trainerworkloadservice.dto.InputDto;
-import org.example.trainerworkloadservice.dto.ResponseDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

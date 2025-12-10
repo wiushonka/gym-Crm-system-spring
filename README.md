@@ -20,8 +20,15 @@ For testing h2 scheme is used, and test profile properties are set in test\resou
 
 Make sure to choose suitable active profile in application.properties and set up db and file paths in 
 that profile. Separate Microservice (Trainer Workload) is used to aggregate some data whenever training is 
-added or deleted. Asynchronous messaging is managed by ActiveMQ artemis. When testing with Cucumber make sure
-that message broker is active, since cucumber integration tests of gymCrmSystem also boots up and waits for 
-workload service with test profile and when testing it is important to have active message broker. 
-Also I dont know why but on github it shows 80% of code as html and there is actually only java and Gherkin 
-and only 2 small thymeleaf teamplates. 
+added or deleted. Asynchronous messaging is managed by ActiveMQ artemis. Included in Docker. 
+
+Since containers must be totally independent I could not use same classes from different Microservices from other 
+Microservices. So now I have same Type of Record in both Services and communication works via Maps which get 
+converted and checked by Services.
+
+Since docker can start up both Microservices and ActiveMQ test should be run from docker, otherwise some test
+which require Integration will fail. Or all Services and Queue activated. During tests Main service no longer
+can boot up microservice since they must be divided to containerise. 
+
+*Also I dont know why but on github it shows 80% of code as html and there is actually only java and Gherkin 
+and only 2 small thymeleaf teamplates.* 

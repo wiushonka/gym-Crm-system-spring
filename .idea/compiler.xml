@@ -13,6 +13,7 @@
     <bytecodeTargetLevel>
       <module name="eureka-service" target="21" />
       <module name="IntegrationTest" target="21" />
+      <module name="message" target="21" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

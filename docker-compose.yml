@@ -1,0 +1,89 @@
+version: '3.9'
+services:
+
+  postgres:
+    image: postgres:15
+    container_name: gym_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: gym
+      POSTGRES_PASSWORD: gympass
+      POSTGRES_DB: gymdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - gymnet
+
+  activemq:
+    image: apache/activemq-artemis:2.32.0
+    container_name: gym_artemis
+    restart: unless-stopped
+    environment:
+      ARTEMIS_USER: admin
+      ARTEMIS_PASSWORD: admin
+    ports:
+      - "61616:61616"
+      - "8161:8161"
+    networks:
+      - gymnet
+
+  mongo:
+    image: mongo:7
+    container_name: gym_mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodata:/data/db
+    networks:
+      - gymnet
+
+  main:
+    build:
+      context: ./gymCrmSystem
+      dockerfile: Dockerfile
+    image: gymcrm-main:full
+    container_name: gymcrm-main
+    depends_on:
+      - postgres
+      - activemq
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/gymdb
+      - SPRING_DATASOURCE_USERNAME=gym
+      - SPRING_DATASOURCE_PASSWORD=gympass
+    ports:
+      - "8080:8080"
+    networks:
+      - gymnet
+
+  report:
+    build:
+      context: ./trainer-workload-service
+      dockerfile: Dockerfile
+    image: gymcrm-report:full
+    container_name: gymcrm-report
+    depends_on:
+      - postgres
+      - activemq
+      - mongo
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/gymdb
+      - SPRING_DATASOURCE_USERNAME=gym
+      - SPRING_DATASOURCE_PASSWORD=gympass
+      - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/trainer_workload_db
+    ports:
+      - "8081:8081"
+    networks:
+      - gymnet
+
+volumes:
+  pgdata:
+  mongodata:
+
+networks:
+  gymnet:
+    driver: bridge
