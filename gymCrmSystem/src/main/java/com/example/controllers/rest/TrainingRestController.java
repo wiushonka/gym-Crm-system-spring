@@ -2,7 +2,6 @@ package com.example.controllers.rest;
 
 import com.example.dto.message.ActionType;
 import com.example.dto.message.InputDto;
-import com.example.dto.message.ResponseDto;
 import com.example.dto.trainings.TrainingTypeDTO;
 import com.example.dto.trainings.newTrainingDTO;
 import com.example.message.Producer;
@@ -118,21 +117,6 @@ public class TrainingRestController {
             dtos.add(new TrainingTypeDTO(t.getTrainingTypeName(), t.getId()));
         }
         return ResponseEntity.ok().body(dtos);
-    }
-
-    @GetMapping("/summary/{username}")
-    @Operation(summary = "Retrieve summary information", description = "Information about workload of some trainer")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved workload summary for the trainer"),
-            @ApiResponse(responseCode = "400", description = "Invalid trainer username format or missing parameter"),
-            @ApiResponse(responseCode = "401", description = "Unauthorized access"),
-            @ApiResponse(responseCode = "403", description = "Forbidden request"),
-            @ApiResponse(responseCode = "404", description = "Trainer not found or no workload data available"),
-            @ApiResponse(responseCode = "500", description = "Internal server error while fetching trainer summary")
-    })
-    public ResponseDto getTrainingSummary(@PathVariable String username) {
-        InputDto inputDto=new InputDto.InputDtoBuilder().username(username).actionType(ActionType.SUMMARY).build();
-        return producer.produceReadRequest(inputDto);
     }
 
     @DeleteMapping()

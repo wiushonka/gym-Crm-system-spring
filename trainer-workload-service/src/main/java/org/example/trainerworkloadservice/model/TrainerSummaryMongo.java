@@ -1,25 +1,28 @@
 package org.example.trainerworkloadservice.model;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
+
+
+import com.amazonaws.services.dynamodbv2.datamodeling.*;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Document(collection = "trainer_summary")
+@DynamoDBTable(tableName = "TrainerSummary")
 public class TrainerSummaryMongo {
 
-    @Id
-    private String id;
-
-    @Indexed(unique = true)
+    @DynamoDBHashKey(attributeName = "trainerUsername")
     private String trainerUsername;
 
+    @DynamoDBAttribute(attributeName = "firstName")
     private String firstName;
+
+    @DynamoDBAttribute(attributeName = "lastName")
     private String lastName;
+
+    @DynamoDBAttribute(attributeName = "isActive")
     private Boolean isActive;
 
+    @DynamoDBAttribute(attributeName = "yearlyMonthlyDuration")
     private Map<String, Map<String, Integer>> yearlyMonthlyDuration = new ConcurrentHashMap<>();
 
     public TrainerSummaryMongo() {}
@@ -39,10 +42,6 @@ public class TrainerSummaryMongo {
                 this.yearlyMonthlyDuration.put(year, new ConcurrentHashMap<>(monthMap))
         );
     }
-
-    public String getId() { return id; }
-
-    public void setId(String id) { this.id = id; }
 
     public String getTrainerUsername() { return trainerUsername; }
 

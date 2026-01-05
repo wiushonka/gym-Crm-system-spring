@@ -1,9 +1,11 @@
 package org.example.trainerworkloadservice.service;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import org.example.trainerworkloadservice.dto.InputDto;
 import org.example.trainerworkloadservice.dto.ActionType;
 import org.example.trainerworkloadservice.model.TrainerSummaryMongo;
-import org.example.trainerworkloadservice.repository.SummaryRepo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +17,12 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class TrainerSummaryService {
 
-    private final SummaryRepo repository;
+    public static final Logger log = LoggerFactory.getLogger(TrainerSummaryService.class);
+    private final DynamoDBMapper mapper;
 
     @Autowired
-    public TrainerSummaryService(SummaryRepo repository) {
-        this.repository = repository;
+    public TrainerSummaryService(DynamoDBMapper mapper) {
+        this.mapper = mapper;
     }
 
     public void processTraining(InputDto input) {
@@ -41,6 +44,8 @@ public class TrainerSummaryService {
             throw new IllegalArgumentException("actionType is required");
         }
 
+        log.info("Processing training {}", input);
+
         LocalDate date = input.getTrainingDate().toInstant()
                 .atZone(ZoneId.systemDefault())
                 .toLocalDate();
@@ -48,16 +53,16 @@ public class TrainerSummaryService {
         String year = String.valueOf(date.getYear());
         String month = String.format("%02d", date.getMonthValue());
 
-        TrainerSummaryMongo trainer = repository.findByTrainerUsername(input.getUsername())
-                .orElseGet(() -> {
-                    TrainerSummaryMongo t = new TrainerSummaryMongo();
-                    t.setTrainerUsername(input.getUsername());
-                    t.setFirstName(input.getFirstName());
-                    t.setLastName(input.getLastName());
-                    t.setIsActive(input.isActive());
-                    t.setYearlyMonthlyDuration(new ConcurrentHashMap<>());
-                    return t;
-                });
+        TrainerSummaryMongo trainer = mapper.load(TrainerSummaryMongo.class,input.getUsername());
+        if(trainer == null) {
+            TrainerSummaryMongo t = new TrainerSummaryMongo();
+            t.setTrainerUsername(input.getUsername());
+            t.setFirstName(input.getFirstName());
+            t.setLastName(input.getLastName());
+            t.setIsActive(input.isActive());
+            t.setYearlyMonthlyDuration(new ConcurrentHashMap<>());
+            trainer=t;
+        }
 
         trainer.setFirstName(input.getFirstName());
         trainer.setLastName(input.getLastName());
@@ -79,16 +84,12 @@ public class TrainerSummaryService {
             yearly.remove(year);
         }
 
-        repository.save(trainer);
+        mapper.save(trainer);
+
+        log.info("-------------------------------- Successfully processed training ------------------------------------ ");
     }
 
     public TrainerSummaryMongo  getTrainerSummary(String username) {
-         return repository.findByTrainerUsername(username).orElseThrow(() -> new TrainerNotFoundException(username));
-    }
-
-    public static class TrainerNotFoundException extends RuntimeException {
-        public TrainerNotFoundException(String username) {
-            super("Trainer not found: " + username);
-        }
+        return mapper.load(TrainerSummaryMongo.class,username);
     }
 }

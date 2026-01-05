@@ -1,21 +1,16 @@
 package org.example.trainerworkloadservice.message;
 
-import jakarta.jms.*;
+import io.awspring.cloud.sqs.annotation.SqsListener;
 import org.example.trainerworkloadservice.dto.ActionType;
 import org.example.trainerworkloadservice.dto.InputDto;
-import org.example.trainerworkloadservice.dto.ResponseDto;
-import org.example.trainerworkloadservice.model.TrainerSummaryMongo;
-import org.example.trainerworkloadservice.service.JwtService;
 import org.example.trainerworkloadservice.service.TrainerSummaryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Service;
 
-import java.io.Serializable;
+import java.time.Instant;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -24,110 +19,118 @@ public class WorkloadConsumer {
     private static final Logger log = LoggerFactory.getLogger(WorkloadConsumer.class);
 
     private final TrainerSummaryService service;
-    private final JwtService jwtService;
 
     @Autowired
-    public WorkloadConsumer(TrainerSummaryService service, JwtService jwtService) {
+    public WorkloadConsumer(TrainerSummaryService service) {
         this.service = service;
-        this.jwtService = jwtService;
     }
-
-    @JmsListener(destination = "training.input.queue")
+    
+    @SqsListener("gym-Queue.fifo")
     public void consume(Map<String, Object> map) {
         InputDto input = mapToInputDto(map);
 
+        log.info("--------------------------------------------------------------------------------------");
         log.info("Received message: {}", input);
-
-        if(!jwtService.validate(input.getToken())){
-            log.error("Invalid or outdated token");
-            throw new RuntimeException("Missing JWT, move to DLQ");
-        }
+        log.info("--------------------------------------------------------------------------------------");
 
         service.processTraining(input);
     }
 
-    @JmsListener(destination = "trainer.read.queue")
-    public void receiveMessage(Message message, Session session) throws JMSException {
-        if (!(message instanceof ObjectMessage objectMessage)) {
-            throw new IllegalArgumentException("Message must be ObjectMessage");
-        }
-
-        Object obj = objectMessage.getObject();
-        if (!(obj instanceof Map<?, ?> mapObj)) {
-            throw new IllegalArgumentException("Expected ObjectMessage containing Map<String,Object>");
-        }
-
-        @SuppressWarnings("unchecked")
-        Map<String, Object> requestMap = (Map<String, Object>) mapObj;
-
-        log.info("Received read request: {}", requestMap);
-
-        String token = (String) requestMap.get("token");
-        if (!jwtService.validate(token)) {
-            log.error("Invalid or expired token");
-            throw new RuntimeException("JWT validation failed");
-        }
-
-        String username = (String) requestMap.get("username");
-        TrainerSummaryMongo resultSet = service.getTrainerSummary(username);
-
-        ResponseDto responseDto = new ResponseDto.ResponseDtoBuilder()
-                .username(username)
-                .firstName(resultSet.getFirstName())
-                .lastName(resultSet.getLastName())
-                .active(resultSet.getIsActive())
-                .yearlyMonthlyDuration(resultSet.getYearlyMonthlyDuration())
-                .build();
-
-        Map<String, Object> responseMap = responseDtoToMap(responseDto);
-
-        Destination replyDestination = message.getJMSReplyTo();
-        if (replyDestination != null) {
-            ObjectMessage replyMessage = session.createObjectMessage((Serializable) responseMap);
-            MessageProducer producer = session.createProducer(replyDestination);
-            producer.send(replyMessage);
-            producer.close();
-        }
-    }
-
-    private Map<String, Object> responseDtoToMap(ResponseDto dto) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("username", dto.getUsername());
-        map.put("firstName", dto.getFirstName());
-        map.put("lastName", dto.getLastName());
-        map.put("isActive", dto.isActive());
-        map.put("yearlyMonthlyDuration", dto.getYearlyMonthlyDuration());
-        return map;
-    }
-
     private InputDto mapToInputDto(Map<String, Object> map) {
         InputDto input = new InputDto();
-        input.setUsername((String) map.get("username"));
-        input.setFirstName((String) map.get("firstName"));
-        input.setLastName((String) map.get("lastName"));
-        input.setActive(Boolean.TRUE.equals(map.get("isActive")));
-        input.setToken((String) map.get("token"));
-        input.setTransactionId((String) map.get("transactionId"));
 
-        Object trainingDateObj = map.get("trainingDate");
-        if (trainingDateObj instanceof Date) {
-            input.setTrainingDate((Date) trainingDateObj);
-        } else if (trainingDateObj instanceof Long) {
-            input.setTrainingDate(new Date((Long) trainingDateObj));
-        } else {
-            input.setTrainingDate(null);
-        }
+        input.setUsername(getString(map.get("username")));
+        input.setFirstName(getString(map.get("firstName")));
+        input.setLastName(getString(map.get("lastName")));
+        input.setToken(getString(map.get("token")));
+        input.setTransactionId(getString(map.get("transactionId")));
 
-        Object durationObj = map.get("trainingDuration");
-        if (durationObj instanceof Number) {
-            input.setTrainingDuration(((Number) durationObj).intValue());
-        }
+        input.setActive(getBoolean(map.get("isActive")));
 
-        Object actionObj = map.get("actionType");
-        if (actionObj instanceof String) {
-            input.setActionType(ActionType.valueOf((String) actionObj));
-        }
+
+        input.setTrainingDuration(getInteger(map.get("trainingDuration")));
+
+        input.setActionType(getActionType(map.get("actionType")));
+
+        input.setTrainingDate(getDate(map.get("trainingDate")));
 
         return input;
+    }
+
+
+    private String getString(Object obj) {
+        if (obj == null) return null;
+        if (obj instanceof String) return (String) obj;
+        return obj.toString();
+    }
+
+    private boolean getBoolean(Object obj) {
+        if (obj == null) return false;
+        if (obj instanceof Boolean) return (Boolean) obj;
+        if (obj instanceof String) {
+            String str = ((String) obj).toLowerCase();
+            return str.equals("true") || str.equals("1") || str.equals("yes") || str.equals("y");
+        }
+        if (obj instanceof Number) return ((Number) obj).intValue() != 0;
+        return false;
+    }
+
+    private Date getDate(Object dateObj) {
+        if (dateObj == null) return null;
+
+        try {
+            if (dateObj instanceof Date) {
+                return (Date) dateObj;
+            }
+
+            String dateStr = dateObj.toString();
+
+            Instant instant = Instant.parse(dateStr);
+            return Date.from(instant);
+
+        } catch (Exception e) {
+            log.warn("Failed to parse date: {} - {}", dateObj, e.getMessage());
+            return null;
+        }
+    }
+
+    private Integer getInteger(Object numObj) {
+        if (numObj == null) return 0;
+
+        try {
+            if (numObj instanceof Number) {
+                return ((Number) numObj).intValue();
+            }
+            if (numObj instanceof String) {
+                return Integer.parseInt((String) numObj);
+            }
+        } catch (Exception e) {
+            log.warn("Failed to parse integer: {} - {}", numObj, e.getMessage());
+        }
+
+        return 0;
+    }
+
+    private ActionType getActionType(Object actionObj) {
+        if (actionObj == null) return null;
+
+        try {
+            if (actionObj instanceof ActionType) {
+                return (ActionType) actionObj;
+            }
+            if (actionObj instanceof String) {
+                String actionStr = (String) actionObj;
+                for (ActionType type : ActionType.values()) {
+                    if (type.name().equalsIgnoreCase(actionStr)) {
+                        return type;
+                    }
+                }
+                return ActionType.valueOf(actionStr);
+            }
+        } catch (Exception e) {
+            log.warn("Failed to parse ActionType: {} - {}", actionObj, e.getMessage());
+        }
+
+        return null;
     }
 }

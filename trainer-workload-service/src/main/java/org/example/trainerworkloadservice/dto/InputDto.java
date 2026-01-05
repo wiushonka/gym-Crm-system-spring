@@ -79,6 +79,21 @@ public class InputDto implements Serializable {
 
     public void setTransactionId(String transactionId) { this.transactionId = transactionId; }
 
+    @Override
+    public String toString() {
+        return "InputDto{" +
+                "username='" + username + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", isActive=" + isActive +
+                ", token='" + token + '\'' +
+                ", transactionId='" + transactionId + '\'' +
+                ", trainingDate=" + trainingDate +
+                ", trainingDuration=" + trainingDuration +
+                ", actionType=" + actionType +
+                '}';
+    }
+
     public static class InputDtoBuilder {
         private String username;
         private String firstName;
