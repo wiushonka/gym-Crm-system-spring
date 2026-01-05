@@ -3,7 +3,7 @@ package org.example.trainerworkloadservice.service;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import org.example.trainerworkloadservice.dto.InputDto;
 import org.example.trainerworkloadservice.dto.ActionType;
-import org.example.trainerworkloadservice.model.TrainerSummaryMongo;
+import org.example.trainerworkloadservice.model.TrainerSummaryDynamo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,9 +53,9 @@ public class TrainerSummaryService {
         String year = String.valueOf(date.getYear());
         String month = String.format("%02d", date.getMonthValue());
 
-        TrainerSummaryMongo trainer = mapper.load(TrainerSummaryMongo.class,input.getUsername());
+        TrainerSummaryDynamo trainer = mapper.load(TrainerSummaryDynamo.class,input.getUsername());
         if(trainer == null) {
-            TrainerSummaryMongo t = new TrainerSummaryMongo();
+            TrainerSummaryDynamo t = new TrainerSummaryDynamo();
             t.setTrainerUsername(input.getUsername());
             t.setFirstName(input.getFirstName());
             t.setLastName(input.getLastName());
@@ -89,7 +89,7 @@ public class TrainerSummaryService {
         log.info("-------------------------------- Successfully processed training ------------------------------------ ");
     }
 
-    public TrainerSummaryMongo  getTrainerSummary(String username) {
-        return mapper.load(TrainerSummaryMongo.class,username);
+    public TrainerSummaryDynamo getTrainerSummary(String username) {
+        return mapper.load(TrainerSummaryDynamo.class,username);
     }
 }

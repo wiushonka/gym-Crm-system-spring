@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @DynamoDBTable(tableName = "TrainerSummary")
-public class TrainerSummaryMongo {
+public class TrainerSummaryDynamo {
 
     @DynamoDBHashKey(attributeName = "trainerUsername")
     private String trainerUsername;
@@ -25,13 +25,13 @@ public class TrainerSummaryMongo {
     @DynamoDBAttribute(attributeName = "yearlyMonthlyDuration")
     private Map<String, Map<String, Integer>> yearlyMonthlyDuration = new ConcurrentHashMap<>();
 
-    public TrainerSummaryMongo() {}
+    public TrainerSummaryDynamo() {}
 
-    public TrainerSummaryMongo(String trainerUsername,
-                               String firstName,
-                               String lastName,
-                               Boolean isActive,
-                               Map<String, Map<String, Integer>> yearlyMonthlyDuration) {
+    public TrainerSummaryDynamo(String trainerUsername,
+                                String firstName,
+                                String lastName,
+                                Boolean isActive,
+                                Map<String, Map<String, Integer>> yearlyMonthlyDuration) {
         this.trainerUsername = trainerUsername;
         this.firstName = firstName;
         this.lastName = lastName;
