@@ -1,0 +1,13 @@
+com\example\storage\TraineeRepositoryTest.class
+com\example\cucumber\steps\AuthSteps.class
+com\example\cucumber\runner\CucumberTestRunner.class
+com\example\cucumber\steps\CucumberSpringConfiguration.class
+com\example\cucumber\steps\TrainerSteps.class
+com\example\service\TrainerServiceTest.class
+com\example\storage\TrainerRepositoryTest.class
+com\example\cucumber\steps\TraineeSteps.class
+com\example\service\TraineeServiceTest.class
+com\example\cucumber\steps\TrainingSteps.class
+com\example\storage\TrainingTypesRepositoryTest.class
+com\example\service\TrainingServiceTest.class
+com\example\utili\UtiliTest.class

@@ -30,5 +30,4 @@ Since docker can start up both Microservices and ActiveMQ test should be run fro
 which require Integration will fail. Or all Services and Queue activated. During tests Main service no longer
 can boot up microservice since they must be divided to containerise. 
 
-*Also I dont know why but on github it shows 80% of code as html and there is actually only java and Gherkin 
-and only 2 small thymeleaf teamplates.* 
+If you would like to check out how it works without AWS, only with artemis and docker please check one or two commits before this (2 probably :D)
